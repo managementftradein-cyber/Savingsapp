@@ -109,6 +109,16 @@ export default async function SplashPage() {
               Log in
             </Link>
           </div>
+
+          <p className="text-[11px] text-white/50 mt-8">
+            <Link href="/terms" className="underline">
+              Terms
+            </Link>{" "}
+            ·{" "}
+            <Link href="/privacy" className="underline">
+              Privacy
+            </Link>
+          </p>
         </div>
         </div>
       </main>

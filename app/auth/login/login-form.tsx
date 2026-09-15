@@ -3,12 +3,10 @@
 import { useState, type FormEvent, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 
 function LoginFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,35 +18,28 @@ function LoginFormInner() {
     setError(null);
     setLoading(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
+    const data = await res.json().catch(() => ({}));
+    setLoading(false);
 
-    if (signInError) {
-      setLoading(false);
-      setError(
-        signInError.message === "Email not confirmed"
-          ? "Verify your email first."
-          : "That email and password don't match."
-      );
+    if (!res.ok) {
+      setError(data.error ?? "Something went wrong. Try again.");
       return;
     }
 
     const nextPath = searchParams.get("next") ?? "/dashboard";
 
-    // If this account has a verified authenticator app enrolled, password
-    // alone only gets them to aal1 — they still need the TOTP challenge
-    // before reaching anything protected.
-    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    setLoading(false);
-
-    if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+    if (data.needsMfa) {
       router.push(`/auth/mfa-challenge?next=${encodeURIComponent(nextPath)}`);
       return;
     }
 
     router.push(nextPath);
+    router.refresh();
   }
 
   return (

@@ -16,6 +16,7 @@ function SignupFormInner() {
   const [referralCode, setReferralCode] = useState(
     searchParams.get("ref")?.toUpperCase() ?? ""
   );
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,6 +28,10 @@ function SignupFormInner() {
       setError("Use a password with at least 8 characters.");
       return;
     }
+    if (!termsAccepted) {
+      setError("You need to agree to the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
 
     setLoading(true);
     const { error: signUpError } = await supabase.auth.signUp({
@@ -36,6 +41,7 @@ function SignupFormInner() {
         data: {
           full_name: fullName,
           referral_code_used: referralCode.trim() || undefined,
+          terms_accepted: true,
         },
       },
     });
@@ -150,6 +156,25 @@ function SignupFormInner() {
               maxLength={7}
             />
           </div>
+
+          <label className="flex items-start gap-2.5 mt-1">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-line accent-blue-deep flex-shrink-0"
+            />
+            <span className="text-[12.5px] text-ink-soft leading-snug">
+              I agree to the{" "}
+              <Link href="/terms" target="_blank" className="text-blue-deep font-semibold">
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" target="_blank" className="text-blue-deep font-semibold">
+                Privacy Policy
+              </Link>
+            </span>
+          </label>
 
           {error && (
             <p role="alert" className="text-sm text-red-600">
