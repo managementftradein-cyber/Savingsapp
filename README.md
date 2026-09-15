@@ -60,9 +60,10 @@ privileges) can.
    `supabase/schema_admin.sql` → `supabase/schema_notifications.sql` →
    `supabase/schema_bank_accounts.sql` → `supabase/schema_referral.sql` →
    `supabase/schema_rewards.sql` → `supabase/schema_kyc.sql` →
-   `supabase/schema_settings.sql`. These now include the `GRANT`
-   statements a fresh project needs — see the note below if you're
-   patching an already-running project instead of starting clean.
+   `supabase/schema_settings.sql` → `supabase/schema_login_security.sql`.
+   These now include the `GRANT` statements a fresh project needs — see
+   the note below if you're patching an already-running project instead
+   of starting clean.
 
 2. **Turn OFF "Confirm email."** In Supabase → Authentication → Providers →
    Email, disable "Confirm email." Verification is now handled entirely by
@@ -425,6 +426,40 @@ accounts.
   a schema change made via the SQL Editor (like the
   `community_posts.user_id → profiles` fix from earlier) without being
   told to reload.
+
+## Terms of Service, Privacy Policy, and signup consent
+
+`/terms` and `/privacy` are real pages now, not just links to nowhere —
+**but they're drafts, not legal documents.** Both have a visible banner
+saying so. This app collects BVN data and moves real money to bank
+accounts, which carries real regulatory exposure in Nigeria (CBN
+licensing, NDPA 2023 data protection obligations, AML/CFT rules) — have
+these reviewed by a lawyer before real users rely on them, and fill in
+the `[bracketed placeholders]` (fees, retention periods, contact info)
+once those are actually decided.
+
+Signup now requires checking a box agreeing to both before the account
+can be created. Consent is recorded server-side at the moment of
+signup — `profiles.terms_accepted_at` and `terms_version` — via
+`handle_new_user()`, not by a direct client update (consistent with the
+column-security fix from earlier: a user can't set this themselves after
+the fact). If you update the terms later, bump the version string in the
+trigger so you can tell who agreed to which version.
+
+## Login rate limiting
+
+Password login now goes through `/api/auth/login` instead of the browser
+calling Supabase directly — that's what makes rate limiting possible.
+Tracked by email (not IP, so switching networks doesn't bypass it): 5
+failed attempts in 15 minutes locks out further tries against that
+email until the window passes. This closes a real gap — OTP and KYC
+attempts were already rate-limited, but password login itself wasn't,
+meaning someone could brute-force a password with unlimited tries.
+
+`supabase/schema_login_security.sql` also folds in one more redefinition
+of `handle_new_user()` — it's been extended a few times now (wallet
+creation, referral tracking, terms consent) — this file has the current,
+complete version.
 
 ## Required Supabase privilege migration
 
