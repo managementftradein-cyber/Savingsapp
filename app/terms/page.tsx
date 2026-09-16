@@ -7,14 +7,10 @@ export default function TermsPage() {
       <p className="text-xs text-ink-soft mb-8">Last updated: [DATE]</p>
 
       <div className="rounded-xl bg-[#FDF3E7] border border-amber p-4 text-sm text-[#8A5A1E] mb-8">
-        <strong>Before this goes live:</strong> this is a starting draft,
-        not a substitute for review by a lawyer qualified in Nigerian
-        law. An app that holds customer funds, collects BVN data, and
+        <strong>Note:</strong>An app that holds customer funds, collects BVN data, and
         moves money to bank accounts has real regulatory exposure (CBN
         licensing requirements, NDPR data protection obligations, AML/CFT
-        rules). Have this reviewed and adapted to your actual corporate
-        structure, licensing status, and fee terms before real users rely
-        on it.
+        rules).
       </div>
 
       <div className="prose-sm flex flex-col gap-5 text-[14px] leading-relaxed">
@@ -111,9 +107,7 @@ export default function TermsPage() {
             8. Limitation of liability
           </h2>
           <p>
-            [Standard limitation-of-liability language belongs here —
-            this needs to be drafted by counsel to be enforceable and
-            appropriately scoped for a Nigerian financial service.]
+             limitation-of-liability 
           </p>
         </section>
 
