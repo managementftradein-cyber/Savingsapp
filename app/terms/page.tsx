@@ -4,7 +4,7 @@ export default function TermsPage() {
       <h1 className="font-display font-extrabold text-2xl text-navy mb-2">
         Terms of Service
       </h1>
-      <p className="text-xs text-ink-soft mb-8">Last updated: [DATE]</p>
+      <p className="text-xs text-ink-soft mb-8">Last updated: Sept 16, 2026</p>
 
       <div className="rounded-xl bg-[#FDF3E7] border border-amber p-4 text-sm text-[#8A5A1E] mb-8">
         <strong>Note:</strong>An app that holds customer funds, collects BVN data, and
