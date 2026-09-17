@@ -21,7 +21,7 @@ export default async function CommunityPage() {
   ] = await Promise.all([
     supabase
       .from("community_posts")
-      .select("id, body, kind, like_count, comment_count, created_at, user_id, profiles(full_name)")
+      .select("id, body, kind, like_count, comment_count, created_at, user_id")
       .order("created_at", { ascending: false })
       .limit(20),
     supabase.from("community_groups").select("id, name").order("name"),
@@ -37,6 +37,18 @@ export default async function CommunityPage() {
   if (postsError) {
     console.error("Failed to load community posts:", postsError.message);
   }
+
+  // Fetched separately and merged manually here rather than using
+  // PostgREST's embed syntax (.select("profiles(full_name)")) — that
+  // repeatedly hit a "more than one relationship" ambiguity error that
+  // survived a schema cache reload AND a full project restart, despite
+  // the database itself showing exactly one clean foreign key. Doing the
+  // join in code sidesteps whatever's going on there entirely.
+  const authorIds = [...new Set((posts ?? []).map((p) => p.user_id))];
+  const { data: authors } = authorIds.length
+    ? await supabase.from("profiles").select("id, full_name").in("id", authorIds)
+    : { data: [] };
+  const authorMap = new Map((authors ?? []).map((a) => [a.id, a.full_name]));
 
   const myGroupIds = new Set((myGroups ?? []).map((g) => g.group_id));
   const myLikedPostIds = new Set((myLikes ?? []).map((l) => l.post_id));
@@ -88,12 +100,12 @@ export default async function CommunityPage() {
         )}
 
         {posts?.map((post) => {
-          const author = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+          const authorName = authorMap.get(post.user_id) ?? null;
           return (
             <div key={post.id} className="rounded-2xl border border-line bg-surface p-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-blue text-white flex items-center justify-center text-[11px] font-bold font-display">
-                  {(author?.full_name ?? "N E")
+                  {(authorName ?? "N E")
                     .split(" ")
                     .map((p: string) => p[0])
                     .slice(0, 2)
@@ -102,7 +114,7 @@ export default async function CommunityPage() {
                 </div>
                 <div>
                   <p className="text-[12.5px] font-bold text-ink">
-                    {author?.full_name ?? "Someone"}
+                    {authorName ?? "Someone"}
                   </p>
                   <p className="text-[10.5px] text-ink-soft">
                     {new Date(post.created_at).toLocaleDateString("en-NG", {

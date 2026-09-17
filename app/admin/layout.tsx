@@ -11,8 +11,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <nav className="flex gap-4 text-xs font-bold text-blue-deep">
             <Link href="/admin">Overview</Link>
             <Link href="/admin/users">Users</Link>
+            <Link href="/admin/withdrawals">Withdrawals</Link>
             <Link href="/admin/community">Community</Link>
             <Link href="/admin/media">Media</Link>
+            <Link href="/admin/settings">Settings</Link>
             <Link href="/dashboard" className="text-ink-soft">
               ← Exit
             </Link>

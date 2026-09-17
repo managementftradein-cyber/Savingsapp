@@ -31,7 +31,13 @@ export default async function WalletPage() {
   const IS_CREDIT = new Set(["deposit", "transfer_from_goal"]);
   const STATUS_STYLE: Record<string, string> = {
     pending: "bg-[#FDF3E7] text-[#8A5A1E]",
+    pending_approval: "bg-[#FDF3E7] text-[#8A5A1E]",
     failed: "bg-[#FCECEB] text-[#C5453A]",
+  };
+  const STATUS_LABEL: Record<string, string> = {
+    pending: "pending",
+    pending_approval: "under review",
+    failed: "failed",
   };
 
   return (
@@ -83,7 +89,7 @@ export default async function WalletPage() {
                   </p>
                   {tx.status !== "success" && (
                     <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full capitalize ${STATUS_STYLE[tx.status]}`}>
-                      {tx.status}
+                      {STATUS_LABEL[tx.status] ?? tx.status}
                     </span>
                   )}
                 </div>

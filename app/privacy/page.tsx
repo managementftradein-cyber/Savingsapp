@@ -4,10 +4,16 @@ export default function PrivacyPage() {
       <h1 className="font-display font-extrabold text-2xl text-navy mb-2">
         Privacy Policy
       </h1>
-      <p className="text-xs text-ink-soft mb-8">Last updated: Sept 16, 2026</p>
+      <p className="text-xs text-ink-soft mb-8">Last updated: [DATE]</p>
 
       <div className="rounded-xl bg-[#FDF3E7] border border-amber p-4 text-sm text-[#8A5A1E] mb-8">
-        <strong>Read Policy:</strong>
+        <strong>Before this goes live:</strong> this is a starting draft
+        describing what the app actually does with data today — it is
+        not reviewed by a lawyer. Given Nestegg collects BVN data and
+        financial information, this needs review against Nigeria&apos;s
+        Data Protection Act (NDPA) 2023 before real users rely on it,
+        including registering with the Nigeria Data Protection
+        Commission if required for your scale of processing.
       </div>
 
       <div className="flex flex-col gap-5 text-[14px] leading-relaxed">
@@ -47,8 +53,9 @@ export default function PrivacyPage() {
           </h2>
           <p>
             Paystack (payment processing, identity verification, bank
-            transfers), our database and
-            authentication infrastructure. Each processes data under
+            transfers), Resend (transactional email), Termii (SMS
+            verification codes), and Supabase (our database and
+            authentication infrastructure). Each processes data under
             their own privacy terms. We may also share information if
             required by law or a valid legal request.
           </p>
@@ -61,7 +68,8 @@ export default function PrivacyPage() {
           <p>
             We retain account and transaction data for as long as your
             account is active, and for a period afterward as required
-            for financial record-keeping and legal compliance.
+            for financial record-keeping and legal compliance. [Specify
+            exact retention periods once determined with counsel.]
           </p>
         </section>
 
@@ -106,7 +114,7 @@ export default function PrivacyPage() {
           <h2 className="font-display font-bold text-base text-navy mb-2">
             8. Contact
           </h2>
-          <p>Questions about your data: [contact support].</p>
+          <p>Questions about your data: [support email/address].</p>
         </section>
       </div>
     </main>

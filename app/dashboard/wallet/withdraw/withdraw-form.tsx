@@ -18,7 +18,7 @@ export default function WithdrawForm({
   const [accountId, setAccountId] = useState(accounts[0]?.id ?? "");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<null | "pending" | "pending_approval">(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
@@ -48,11 +48,11 @@ export default function WithdrawForm({
       return;
     }
 
-    setSuccess(true);
+    setSuccess(data.status === "pending_approval" ? "pending_approval" : "pending");
     setTimeout(() => {
       router.push("/dashboard/wallet");
       router.refresh();
-    }, 1800);
+    }, 2200);
   }
 
   if (success) {
@@ -63,9 +63,13 @@ export default function WithdrawForm({
             <path d="M20 6L9 17l-5-5" />
           </svg>
         </div>
-        <h1 className="font-display font-extrabold text-lg text-navy">Withdrawal started</h1>
+        <h1 className="font-display font-extrabold text-lg text-navy">
+          {success === "pending_approval" ? "Withdrawal under review" : "Withdrawal started"}
+        </h1>
         <p className="text-sm text-ink-soft mt-2">
-          Your money is on its way — this usually takes a few minutes.
+          {success === "pending_approval"
+            ? "This amount needs a quick review before it's sent — you'll be notified once it's processed."
+            : "Your money is on its way — this usually takes a few minutes."}
         </p>
       </main>
     );

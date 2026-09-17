@@ -16,6 +16,7 @@ export default async function AdminOverviewPage() {
     { count: totalUsers },
     { count: verifiedUsers },
     { count: pendingKyc },
+    { count: pendingWithdrawals },
     { data: wallets },
     { data: goals },
     { count: totalPosts },
@@ -23,6 +24,10 @@ export default async function AdminOverviewPage() {
     admin.from("profiles").select("*", { count: "exact", head: true }),
     admin.from("profiles").select("*", { count: "exact", head: true }).eq("email_verified", true),
     admin.from("profiles").select("*", { count: "exact", head: true }).eq("kyc_status", "pending"),
+    admin
+      .from("wallet_transactions")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending_approval"),
     admin.from("wallets").select("balance_kobo"),
     admin.from("savings_goals").select("current_amount_kobo").eq("status", "active"),
     admin.from("community_posts").select("*", { count: "exact", head: true }),
@@ -35,6 +40,11 @@ export default async function AdminOverviewPage() {
     { label: "Total users", value: totalUsers ?? 0 },
     { label: "Email verified", value: verifiedUsers ?? 0 },
     { label: "Pending KYC", value: pendingKyc ?? 0, highlight: (pendingKyc ?? 0) > 0 },
+    {
+      label: "Withdrawals awaiting review",
+      value: pendingWithdrawals ?? 0,
+      highlight: (pendingWithdrawals ?? 0) > 0,
+    },
     { label: "In wallets", value: formatKobo(totalWalletKobo) },
     { label: "In savings goals", value: formatKobo(totalSavedKobo) },
     { label: "Community posts", value: totalPosts ?? 0 },
@@ -63,6 +73,16 @@ export default async function AdminOverviewPage() {
         <div className="mt-5 rounded-xl bg-[#FDF3E7] border border-amber p-3 text-sm text-[#8A5A1E]">
           {pendingKyc} user{pendingKyc !== 1 ? "s" : ""} waiting on KYC review —{" "}
           <a href="/admin/users?filter=pending" className="font-bold underline">
+            review now
+          </a>
+          .
+        </div>
+      )}
+
+      {(pendingWithdrawals ?? 0) > 0 && (
+        <div className="mt-3 rounded-xl bg-[#FDF3E7] border border-amber p-3 text-sm text-[#8A5A1E]">
+          {pendingWithdrawals} withdrawal{pendingWithdrawals !== 1 ? "s" : ""} waiting on approval —{" "}
+          <a href="/admin/withdrawals" className="font-bold underline">
             review now
           </a>
           .
