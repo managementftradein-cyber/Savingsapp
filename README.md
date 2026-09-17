@@ -60,7 +60,8 @@ privileges) can.
    `supabase/schema_admin.sql` → `supabase/schema_notifications.sql` →
    `supabase/schema_bank_accounts.sql` → `supabase/schema_referral.sql` →
    `supabase/schema_rewards.sql` → `supabase/schema_kyc.sql` →
-   `supabase/schema_settings.sql` → `supabase/schema_login_security.sql`.
+   `supabase/schema_settings.sql` → `supabase/schema_login_security.sql` →
+   `supabase/schema_withdrawal_approval.sql`.
    These now include the `GRANT` statements a fresh project needs — see
    the note below if you're patching an already-running project instead
    of starting clean.
@@ -460,6 +461,32 @@ meaning someone could brute-force a password with unlimited tries.
 of `handle_new_user()` — it's been extended a few times now (wallet
 creation, referral tracking, terms consent) — this file has the current,
 complete version.
+
+## Withdrawal approval threshold
+
+Until now, every bank withdrawal was fully automatic regardless of
+amount. `supabase/schema_withdrawal_approval.sql` adds a configurable
+threshold — withdrawals at or above it go to `'pending_approval'`
+instead of an instant Paystack transfer.
+
+- **The check happens inside `reserve_withdrawal()`**, not in application
+  code — so it can't be bypassed by calling the API a different way.
+  Smaller amounts still process instantly through the exact same
+  reserve-then-attempt flow as before.
+- **`/admin/withdrawals`** — the review queue. Approve triggers the
+  actual Paystack transfer (using the same shared
+  `lib/paystack-transfer.ts` helper the instant path uses, so behavior
+  is identical once a transfer is actually attempted); reject refunds
+  the wallet immediately.
+- **`/admin/settings`** — set the threshold in Naira. Defaults to
+  ₦100,000 if never configured.
+- The admin overview page surfaces a count and banner for withdrawals
+  awaiting review, same pattern as the pending-KYC banner.
+
+`resolve_withdrawal()` was widened to accept both `'pending'` and
+`'pending_approval'` as resolvable states, so admin rejection and the
+Paystack webhook's failure path both funnel through one refund
+function rather than duplicating that logic.
 
 ## Required Supabase privilege migration
 
